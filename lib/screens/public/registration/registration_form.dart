@@ -1,3 +1,4 @@
+import 'package:financial_transactions/components/components.dart';
 import 'package:flutter/material.dart';
 
 class RegistrationForm extends StatefulWidget {
@@ -11,6 +12,26 @@ class RegistrationForm extends StatefulWidget {
 
 class RegistrationFormState extends State<RegistrationForm> {
   final _formKey = GlobalKey<FormState>();
+
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  void onRegistration() async {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Processing Data')),
+      );
+    }
+
+    final registrationOnfo = {
+      "name": nameController.text,
+      "email": emailController.text,
+      "password": passwordController.text,
+    };
+
+    debugPrint(registrationOnfo.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,20 +47,39 @@ class RegistrationFormState extends State<RegistrationForm> {
               }
               return null;
             },
+            controller: nameController,
+            decoration: const InputDecoration(labelText: "Name"),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Processing Data')),
-                  );
-                }
-              },
-              child: const Text('Submit'),
+          TextFormField(
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+            controller: emailController,
+            decoration: const InputDecoration(labelText: "Email"),
+          ),
+          TextFormField(
+            obscureText: true,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+            controller: passwordController,
+            decoration: const InputDecoration(labelText: "Password"),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: SubmitButton(
+                onSubmit: onRegistration,
+                buttonText: "Registration",
+              ),
             ),
-          ),
+          )
         ],
       ),
     );
