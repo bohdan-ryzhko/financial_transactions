@@ -1,5 +1,20 @@
+import 'package:dio/dio.dart';
 import 'package:financial_transactions/components/components.dart';
 import 'package:flutter/material.dart';
+
+class Auth {
+  Dio dio = Dio();
+  String baseUrl = 'http://localhost:8000/api/auth';
+
+  Future<void> register(data) async {
+    try {
+      final response = await dio.post("$baseUrl/registration", data: data);
+      debugPrint(response.toString());
+    } catch (error) {
+      debugPrint(error.toString());
+    }
+  }
+}
 
 class RegistrationForm extends StatefulWidget {
   const RegistrationForm({super.key});
@@ -30,7 +45,7 @@ class RegistrationFormState extends State<RegistrationForm> {
       "password": passwordController.text,
     };
 
-    debugPrint(registrationOnfo.toString());
+    Auth().register(registrationOnfo);
   }
 
   @override

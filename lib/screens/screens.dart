@@ -1,5 +1,4 @@
-import 'package:financial_transactions/screens/public/login/login_screen.dart';
-import 'package:financial_transactions/screens/public/registration/registration_screen.dart';
+import 'package:financial_transactions/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 export 'public/login/login_form.dart';
@@ -25,11 +24,17 @@ class ScreensNavigation extends StatefulWidget {
 
 class _ScreensNavigationState extends State<ScreensNavigation> {
   int _selectedIndex = 0;
+  String token = '';
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    RegistrationScreen(),
-    LoginScreen(),
-  ];
+  List<Widget> _widgetOptions = [];
+  List<BottomNavigationBarItem> _bottomItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _widgetOptions = defineNavigation.getRoutes(token);
+    _bottomItems = defineNavigation.getNavigationsBottomItems(token);
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -46,16 +51,7 @@ class _ScreensNavigationState extends State<ScreensNavigation> {
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.signal_cellular_alt),
-            label: 'Registration',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.signal_cellular_alt),
-            label: 'Login',
-          ),
-        ],
+        items: _bottomItems,
         currentIndex: _selectedIndex,
         selectedItemColor: theme.primaryColor,
         onTap: _onItemTapped,

@@ -2,19 +2,19 @@ import 'package:financial_transactions/components/components.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 
-class Auth {
-  Dio dio = Dio();
-  String baseUrl = 'http://localhost:8000/api/auth';
+// class Auth {
+//   Dio dio = Dio();
+//   String baseUrl = 'http://localhost:8000/api/auth';
 
-  Future<void> login(data) async {
-    try {
-      final response = await dio.post("$baseUrl/login", data: data);
-      debugPrint(response.toString());
-    } catch (error) {
-      debugPrint(error.toString());
-    }
-  }
-}
+//   Future<void> login(data) async {
+//     try {
+//       final response = await dio.post("$baseUrl/login", data: data);
+//       debugPrint(response.toString());
+//     } catch (error) {
+//       debugPrint(error.toString());
+//     }
+//   }
+// }
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -38,7 +38,7 @@ class LoginFormState extends State<LoginForm> {
     };
 
     debugPrint(loginInfo.toString());
-    Auth().login(loginInfo);
+    // Auth().login(loginInfo);
 
     // try {
     //   final response =
