@@ -1,4 +1,5 @@
 import 'package:financial_transactions/components/components.dart';
+import 'package:financial_transactions/utils/auth_api.dart';
 import 'package:flutter/material.dart';
 
 class LoginForm extends StatefulWidget {
@@ -21,6 +22,8 @@ class LoginFormState extends State<LoginForm> {
       "email": emailController.text,
       "password": passwordController.text,
     };
+
+    authApi.login(loginInfo);
 
     debugPrint(loginInfo.toString());
   }

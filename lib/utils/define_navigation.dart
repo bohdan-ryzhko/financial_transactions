@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 class DefineNavigation {
   List<Widget> getRoutes(String token) {
-    if (token == '') return [const RegistrationScreen(), const LoginScreen()];
+    if (token == "") return [const RegistrationScreen(), const LoginScreen()];
 
     return [
       const Transactions(),
@@ -17,7 +17,7 @@ class DefineNavigation {
   }
 
   List<BottomNavigationBarItem> getNavigationsBottomItems(String token) {
-    if (token == '') {
+    if (token == "") {
       return [
         const BottomNavigationBarItem(
           icon: Icon(Icons.signal_cellular_alt),

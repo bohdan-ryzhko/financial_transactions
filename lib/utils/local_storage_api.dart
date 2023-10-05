@@ -1,22 +1,29 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorageApi {
-  late SharedPreferences _prefs;
+  SharedPreferences? _prefs;
 
   LocalStorageApi() {
     initPrefs();
   }
 
-  Future<void> initPrefs() async {
-    _prefs = await SharedPreferences.getInstance();
+  SharedPreferences? get storage => _prefs;
+
+  initPrefs() {
+    SharedPreferences.getInstance().then((value) => _prefs = value);
   }
 
-  SharedPreferences get storage {
-    return _prefs;
+  setToken(String value) {
+    if (storage != null) {
+      storage!.setString("token", value);
+    }
   }
 
-  set token(String value) {
-    _prefs.setString('token', value);
+  String getToken() {
+    if (storage != null) {
+      return storage!.getString("token") ?? "";
+    }
+    return "";
   }
 }
 
