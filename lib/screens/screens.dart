@@ -2,6 +2,7 @@ import 'package:financial_transactions/screens/private/calculations/calculations
 import 'package:financial_transactions/screens/private/graph/graph.dart';
 import 'package:financial_transactions/screens/private/transactions/transactions.dart';
 import 'package:financial_transactions/state/state.dart';
+import 'package:financial_transactions/state/user_bloc.dart';
 import 'package:financial_transactions/utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +37,14 @@ class _ScreensNavigationState extends State<ScreensNavigation> {
 
   @override
   void initState() {
-    debugPrint('Email: ${appBloc.user.email}');
+    // example to update field user
+    final updatedUser = UserState(
+      email: 'test@example.com',
+      name: 'name',
+      password: '1234567',
+    );
+    appBloc.user = updatedUser;
+    debugPrint('Email: ${appBloc.user.email}'); // 'test@example.com'
     super.initState();
     setState(() {
       _widgetOptions = defineNavigation.getRoutes(token);
