@@ -1,5 +1,7 @@
 import 'package:financial_transactions/components/components.dart';
-import 'package:financial_transactions/utils/auth_api.dart';
+import 'package:financial_transactions/screens/private/private_screens.dart';
+import 'package:financial_transactions/state/state.dart';
+import 'package:financial_transactions/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class LoginForm extends StatefulWidget {
@@ -12,20 +14,35 @@ class LoginForm extends StatefulWidget {
 }
 
 class LoginFormState extends State<LoginForm> {
+  final appBloc = AppBloc();
   final _formKey = GlobalKey<FormState>();
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void onLogin() {
-    final loginInfo = {
-      "email": emailController.text,
-      "password": passwordController.text,
-    };
+  void onLogin() async {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Processing Data')),
+      );
+    }
 
-    authApi.login(loginInfo);
+    appBloc.user.login(
+      email: emailController.text,
+      password: passwordController.text,
+    );
 
-    debugPrint(loginInfo.toString());
+    String? token = await LocalStorageApi.getToken();
+
+    if (token != "") {
+      if (!context.mounted) return;
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const PrivateBar(),
+        ),
+      );
+    }
   }
 
   @override

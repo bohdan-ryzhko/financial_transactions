@@ -1,14 +1,9 @@
-import 'package:financial_transactions/utils/local_storage_api.dart';
 import 'package:flutter/material.dart';
 
 class Transactions extends StatelessWidget {
   const Transactions({super.key});
 
-  void onPressed() {
-    String token = localStorage.getToken();
-
-    debugPrint(token);
-  }
+  void onPressed() {}
 
   @override
   Widget build(BuildContext context) {
