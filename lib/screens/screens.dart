@@ -50,6 +50,7 @@ class _ScreensNavigationState extends State<ScreensNavigation> {
     _loadToken().then((loadedToken) {
       setState(() {
         token = loadedToken ?? "";
+        appBloc.user.refresh(token);
         _widgetOptions = defineNavigation.getRoutes(token);
         _bottomItems = defineNavigation.getNavigationsBottomItems(token);
       });

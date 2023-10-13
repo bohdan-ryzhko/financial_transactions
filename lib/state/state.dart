@@ -25,5 +25,5 @@ class AppBloc {
   AppBloc._internal();
 
   UserState user = UserState.initial();
-  final transactions = TransactionsState.initial();
+  TransactionsState transactions = TransactionsState.initial();
 }

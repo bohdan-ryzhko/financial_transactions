@@ -37,23 +37,23 @@ class _PrivateNavigationState extends State<PrivateNavigation> {
           NavigationDestination(
             selectedIcon: Icon(Icons.home),
             icon: Icon(Icons.home_outlined),
-            label: 'Home',
+            label: 'Transactions',
           ),
           NavigationDestination(
             icon: Icon(Icons.business),
-            label: 'Business',
+            label: 'Calculations',
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.school),
             icon: Icon(Icons.school_outlined),
-            label: 'School',
+            label: 'Graph',
           ),
         ],
       ),
       body: <Widget>[
         const Transactions(),
-        const Calculations(),
         const Graph(),
+        const Calculations(),
       ][currentPageIndex],
     );
   }

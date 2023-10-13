@@ -3,9 +3,9 @@ import 'package:financial_transactions/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class UserState {
-  final String? email;
-  final String? name;
-  final String? password;
+  String? email;
+  String? name;
+  String? password;
   String? token;
 
   final Dio _dio = Dio();
@@ -49,9 +49,9 @@ class UserState {
         throw Exception(response);
       }
 
-      email = response.data!["email"] ?? "";
-      name = response.data!["name"] ?? "";
-      password = response.data!["password"] ?? "";
+      this.email = response.data!["email"] ?? "";
+      this.name = response.data!["name"] ?? "";
+      this.password = response.data!["password"] ?? "";
 
       login(email: email, password: data["password"]);
     } catch (error) {
@@ -78,6 +78,36 @@ class UserState {
 
       await LocalStorageApi.setToken(response.data!["token"]);
       token = response.data!["token"] ?? "";
+    } catch (error) {
+      debugPrint(error.toString());
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      await dio.post("$baseUrl/logout");
+
+      email = "";
+      name = "";
+      password = "";
+      token = "";
+    } catch (error) {
+      debugPrint(error.toString());
+    }
+  }
+
+  Future<void> refresh(String token) async {
+    try {
+      final Map<String, dynamic> data = {
+        "token": token,
+      };
+
+      Response<Map<String, dynamic>> response =
+          await dio.post("$baseUrl/refresh", data: data);
+
+      email = response.data!["email"] ?? "";
+      name = response.data!["name"] ?? "";
+      password = response.data!["password"] ?? "";
     } catch (error) {
       debugPrint(error.toString());
     }
