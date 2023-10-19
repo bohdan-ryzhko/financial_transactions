@@ -22,7 +22,8 @@ class TransactionsState extends State<Transactions>
 
   String? name = "";
 
-  List<Transaction> transactions = [];
+  List<Transaction> transactionsRevenues = [];
+  List<Transaction> transactionsExpenses = [];
 
   @override
   void initState() {
@@ -33,53 +34,29 @@ class TransactionsState extends State<Transactions>
         .getTransactions(typeTransaction: "revenues")
         .then((transactionsList) {
       setState(() {
-        transactions = transactionsList;
+        transactionsRevenues = transactionsList;
       });
     }).catchError((error) {
       setState(() {
-        transactions = [];
+        transactionsRevenues = [];
+      });
+    });
+
+    appBloc.transactions
+        .getTransactions(typeTransaction: "expenses")
+        .then((transactionsList) {
+      setState(() {
+        transactionsExpenses = transactionsList;
+      });
+    }).catchError((error) {
+      setState(() {
+        transactionsExpenses = [];
       });
     });
 
     setState(() {
       name = appBloc.user.name;
     });
-  }
-
-  void handleNavigationTap(int index) {
-    switch (index) {
-      case 0:
-        appBloc.transactions
-            .getTransactions(typeTransaction: "revenues")
-            .then((transactionsList) {
-          setState(() {
-            transactions = transactionsList;
-          });
-        }).catchError((error) {
-          setState(() {
-            transactions = [];
-          });
-        });
-        debugPrint("transactions $index $transactions");
-        break;
-      case 1:
-        appBloc.transactions
-            .getTransactions(typeTransaction: "expenses")
-            .then((transactionsList) {
-          setState(() {
-            transactions = transactionsList;
-          });
-        }).catchError((error) {
-          setState(() {
-            transactions = [];
-          });
-        });
-        debugPrint("transactions $index $transactions");
-        break;
-      default:
-        debugPrint("curr index = $index, ${appBloc.user}");
-        break;
-    }
   }
 
   DateTime selectedDate = DateTime.now();
@@ -229,42 +206,31 @@ class TransactionsState extends State<Transactions>
               ),
             ],
             controller: _tabController,
-            onTap: handleNavigationTap,
           ),
         ),
         body: TabBarView(
           controller: _tabController,
           children: <Widget>[
             ListView.builder(
-              itemCount: transactions.length,
+              itemCount: transactionsRevenues.length,
               itemBuilder: (BuildContext context, int index) {
-                if (transactions.isNotEmpty) {
-                  Transaction transaction = transactions[index];
-
-                  return ListTile(
-                    title: Text("Amount: ${transaction.amount}"),
-                    subtitle: Text(
-                        "Date: ${transaction.transaction_date}\nDescription: ${transaction.transaction_description}\nType: ${transaction.transaction_type}"),
-                  );
-                } else {
-                  return const CircularProgressIndicator();
-                }
+                return transactionsRevenues.isNotEmpty
+                    ? TransactionItem(
+                        transaction: transactionsRevenues[index],
+                        transactionType: "revenues",
+                      )
+                    : const CircularProgressIndicator();
               },
             ),
             ListView.builder(
-              itemCount: transactions.length,
+              itemCount: transactionsExpenses.length,
               itemBuilder: (BuildContext context, int index) {
-                if (transactions.isNotEmpty) {
-                  Transaction transaction = transactions[index];
-
-                  return ListTile(
-                    title: Text("Amount: ${transaction.amount}"),
-                    subtitle: Text(
-                        "Date: ${transaction.transaction_date}\nDescription: ${transaction.transaction_description}\nType: ${transaction.transaction_type}"),
-                  );
-                } else {
-                  return const CircularProgressIndicator();
-                }
+                return transactionsRevenues.isNotEmpty
+                    ? TransactionItem(
+                        transaction: transactionsExpenses[index],
+                        transactionType: "expenses",
+                      )
+                    : const CircularProgressIndicator();
               },
             ),
           ],
