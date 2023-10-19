@@ -2,11 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:financial_transactions/utils/utils.dart';
 import 'package:flutter/material.dart';
 
+class LoadingUserState extends UserState {}
+
 class UserState {
   String? email;
   String? name;
   String? password;
-  String? token;
+  String token = "";
 
   final Dio _dio = Dio();
   final String _baseUrl = 'http://localhost:8000/api/auth';
@@ -18,7 +20,6 @@ class UserState {
     this.email,
     this.name,
     this.password,
-    this.token,
   });
 
   factory UserState.initial() {
@@ -26,7 +27,6 @@ class UserState {
       email: null,
       name: null,
       password: null,
-      token: null,
     );
   }
 
@@ -72,25 +72,32 @@ class UserState {
       Response<Map<String, dynamic>> response =
           await dio.post("$baseUrl/login", data: data);
 
+      await LocalStorageApi.setToken(response.data!["token"]);
+
+      debugPrint("response in login: ${response.data.toString()}");
+
       if (response.statusCode != 200) {
         throw Exception(response);
       }
 
-      await LocalStorageApi.setToken(response.data!["token"]);
       token = response.data!["token"] ?? "";
     } catch (error) {
       debugPrint(error.toString());
     }
   }
 
-  Future<void> logout() async {
+  Future logout() async {
     try {
-      await dio.post("$baseUrl/logout");
+      await LocalStorageApi.resetToken();
 
       email = "";
       name = "";
       password = "";
       token = "";
+
+      debugPrint(await LocalStorageApi.getToken());
+
+      return await LocalStorageApi.getToken();
     } catch (error) {
       debugPrint(error.toString());
     }
@@ -102,12 +109,18 @@ class UserState {
         "token": token,
       };
 
-      Response<Map<String, dynamic>> response =
-          await dio.post("$baseUrl/refresh", data: data);
+      if (token != "") {
+        Response<Map<String, dynamic>> response =
+            await dio.post("$baseUrl/refresh", data: data);
 
-      email = response.data!["email"] ?? "";
-      name = response.data!["name"] ?? "";
-      password = response.data!["password"] ?? "";
+        debugPrint(response.toString());
+
+        email = response.data!["email"] ?? "";
+        name = response.data!["name"] ?? "";
+        password = response.data!["password"] ?? "";
+      }
+
+      debugPrint("token in refresh: $token");
     } catch (error) {
       debugPrint(error.toString());
     }

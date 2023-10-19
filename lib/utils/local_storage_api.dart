@@ -12,4 +12,9 @@ class LocalStorageApi {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
   }
+
+  static Future<void> resetToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+  }
 }

@@ -21,14 +21,20 @@ class RegistrationFormState extends State<RegistrationForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  bool isLoading = false;
+
   void onRegistration() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Processing Data')),
       );
     }
 
-    appBloc.user.registration(
+    await appBloc.user.registration(
       email: emailController.text,
       name: nameController.text,
       password: passwordController.text,
@@ -36,15 +42,21 @@ class RegistrationFormState extends State<RegistrationForm> {
 
     String? token = await LocalStorageApi.getToken();
 
-    if (token != "") {
+    debugPrint("token in register: $token");
+
+    if (token != null) {
       if (!context.mounted) return;
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const PrivateBar(),
+          builder: (context) => const PrivateScreens(),
         ),
       );
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -88,10 +100,12 @@ class RegistrationFormState extends State<RegistrationForm> {
           Expanded(
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: SubmitButton(
-                onSubmit: onRegistration,
-                buttonText: "Registration",
-              ),
+              child: isLoading
+                  ? const CircularProgressIndicator()
+                  : SubmitButton(
+                      onSubmit: onRegistration,
+                      buttonText: "Login",
+                    ),
             ),
           )
         ],

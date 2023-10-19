@@ -2,57 +2,48 @@ import 'package:financial_transactions/screens/public/login/login_screen.dart';
 import 'package:financial_transactions/screens/public/registration/registration_screen.dart';
 import 'package:flutter/material.dart';
 
-class PublicBar extends StatelessWidget {
-  const PublicBar({super.key});
+class PublicScreens extends StatefulWidget {
+  const PublicScreens({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(home: PublicNavigation());
+  State<PublicScreens> createState() => _PublicScreensState();
+}
+
+class _PublicScreensState extends State<PublicScreens> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
-}
-
-class PublicNavigation extends StatefulWidget {
-  const PublicNavigation({super.key});
-
-  @override
-  State<PublicNavigation> createState() => _PublicNavigationState();
-}
-
-class _PublicNavigationState extends State<PublicNavigation> {
-  int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        indicatorColor: Colors.amber[800],
-        selectedIndex: currentPageIndex,
-        destinations: const <Widget>[
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
+      body: Center(
+        child: [
+          const RegistrationScreen(),
+          const LoginScreen(),
+        ].elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.signal_cellular_alt),
+            label: 'Registration',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.business),
-            label: 'Business',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.school),
-            icon: Icon(Icons.school_outlined),
-            label: 'School',
+          BottomNavigationBarItem(
+            icon: Icon(Icons.signal_cellular_alt),
+            label: 'Login',
           ),
         ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: theme.primaryColor,
+        onTap: _onItemTapped,
       ),
-      body: <Widget>[
-        const RegistrationScreen(),
-        const LoginScreen(),
-      ][currentPageIndex],
     );
   }
 }

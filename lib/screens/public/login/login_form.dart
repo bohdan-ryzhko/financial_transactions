@@ -20,29 +20,47 @@ class LoginFormState extends State<LoginForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  bool isLoading = false;
+
   void onLogin() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Processing Data')),
       );
     }
 
-    appBloc.user.login(
+    await appBloc.user.login(
       email: emailController.text,
       password: passwordController.text,
     );
 
+    final data = {
+      "email": emailController.text,
+      "password": passwordController.text
+    };
+
     String? token = await LocalStorageApi.getToken();
 
-    if (token != "") {
+    debugPrint("token in login: $token");
+    debugPrint("data in login: ${data.toString()}");
+
+    if (token != null) {
       if (!context.mounted) return;
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const PrivateBar(),
+          builder: (context) => const PrivateScreens(),
         ),
       );
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -76,10 +94,12 @@ class LoginFormState extends State<LoginForm> {
           Expanded(
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: SubmitButton(
-                onSubmit: onLogin,
-                buttonText: "Login",
-              ),
+              child: isLoading
+                  ? const CircularProgressIndicator()
+                  : SubmitButton(
+                      onSubmit: onLogin,
+                      buttonText: "Login",
+                    ),
             ),
           ),
         ],

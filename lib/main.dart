@@ -1,7 +1,10 @@
 import 'package:financial_transactions/screens/screens.dart';
+import 'package:financial_transactions/state/state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
+  Bloc.observer = const FinancialObserver();
   runApp(const MyApp());
 }
 

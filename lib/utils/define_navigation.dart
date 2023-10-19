@@ -6,8 +6,10 @@ import 'package:financial_transactions/screens/public/registration/registration_
 import 'package:flutter/material.dart';
 
 class DefineNavigation {
-  List<Widget> getRoutes(String token) {
-    if (token == "") return [const RegistrationScreen(), const LoginScreen()];
+  List<Widget> getRoutes(String? token) {
+    if (token == "" || token == null) {
+      return [const RegistrationScreen(), const LoginScreen()];
+    }
 
     return [
       const Transactions(),
@@ -16,8 +18,8 @@ class DefineNavigation {
     ];
   }
 
-  List<BottomNavigationBarItem> getNavigationsBottomItems(String token) {
-    if (token == "") {
+  List<BottomNavigationBarItem> getNavigationsBottomItems(String? token) {
+    if (token == "" || token == null) {
       return [
         const BottomNavigationBarItem(
           icon: Icon(Icons.signal_cellular_alt),

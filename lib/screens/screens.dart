@@ -26,90 +26,43 @@ class ScreensNavigation extends StatefulWidget {
 }
 
 class _ScreensNavigationState extends State<ScreensNavigation> {
-  late AppBloc appBloc;
-  int _selectedIndex = 0;
+  AppBloc appBloc = AppBloc();
   String token = "";
-
-  List<Widget> _widgetOptions = [];
-  List<BottomNavigationBarItem> _bottomItems = [];
-
-  Future<String?> _loadToken() async {
-    String? localToken = await LocalStorageApi.getToken();
-    setState(() {
-      token = localToken ?? "";
-    });
-
-    return token;
-  }
 
   @override
   void initState() {
     super.initState();
-
-    appBloc = AppBloc();
-    _loadToken().then((loadedToken) {
-      setState(() {
-        token = loadedToken ?? "";
-        appBloc.user.refresh(token);
-        _widgetOptions = defineNavigation.getRoutes(token);
-        _bottomItems = defineNavigation.getNavigationsBottomItems(token);
-      });
-    });
-    setState(() {
-      _widgetOptions = defineNavigation.getRoutes(token);
-      _bottomItems = defineNavigation.getNavigationsBottomItems(token);
-    });
+    _initializeToken();
   }
 
-  void _onItemTapped(int index) {
+  Future<void> _initializeToken() async {
+    final retrievedToken = await LocalStorageApi.getToken();
     setState(() {
-      _selectedIndex = index;
+      token = retrievedToken ?? "";
     });
-  }
 
-  @override
-  void didUpdateWidget(covariant ScreensNavigation oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    setState(() {
-      if (token != "") {
-        _widgetOptions = [
-          const PrivateBar(),
-        ];
-        _bottomItems = [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.signal_cellular_alt),
-            label: 'Private',
-          ),
-        ];
-      } else {
-        _widgetOptions = [
-          const PublicBar(),
-        ];
-        _bottomItems = [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.signal_cellular_alt),
-            label: 'Public',
-          ),
-        ];
-      }
-    });
+    appBloc.user.refresh(token);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    return FutureBuilder<String?>(
+      future: LocalStorageApi.getToken(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          token = snapshot.data ?? "";
 
-    return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: _bottomItems,
-        currentIndex: _selectedIndex,
-        selectedItemColor: theme.primaryColor,
-        onTap: _onItemTapped,
-      ),
+          if (token.isEmpty) {
+            return const PublicScreens();
+          } else {
+            return const PrivateScreens();
+          }
+        }
+      },
     );
   }
 }
