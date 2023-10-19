@@ -1,6 +1,6 @@
 import 'package:financial_transactions/components/components.dart';
+import 'package:financial_transactions/state/financial_bloc.dart';
 import 'package:financial_transactions/state/state.dart';
-import 'package:financial_transactions/utils/local_storage_api.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -22,10 +22,24 @@ class TransactionsState extends State<Transactions>
 
   String? name = "";
 
+  List<Transaction> transactions = [];
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    appBloc.transactions
+        .getTransactions(typeTransaction: "revenues")
+        .then((transactionsList) {
+      setState(() {
+        transactions = transactionsList;
+      });
+    }).catchError((error) {
+      setState(() {
+        transactions = [];
+      });
+    });
 
     setState(() {
       name = appBloc.user.name;
@@ -35,10 +49,32 @@ class TransactionsState extends State<Transactions>
   void handleNavigationTap(int index) {
     switch (index) {
       case 0:
-        debugPrint("curr index = $index, ${appBloc.user.name}");
+        appBloc.transactions
+            .getTransactions(typeTransaction: "revenues")
+            .then((transactionsList) {
+          setState(() {
+            transactions = transactionsList;
+          });
+        }).catchError((error) {
+          setState(() {
+            transactions = [];
+          });
+        });
+        debugPrint("transactions $index $transactions");
         break;
       case 1:
-        debugPrint("curr index = $index, ${appBloc.user.email}");
+        appBloc.transactions
+            .getTransactions(typeTransaction: "expenses")
+            .then((transactionsList) {
+          setState(() {
+            transactions = transactionsList;
+          });
+        }).catchError((error) {
+          setState(() {
+            transactions = [];
+          });
+        });
+        debugPrint("transactions $index $transactions");
         break;
       default:
         debugPrint("curr index = $index, ${appBloc.user}");
@@ -69,20 +105,12 @@ class TransactionsState extends State<Transactions>
     }
   }
 
-  Future<void> addTransaction() async {
-    debugPrint('amountController, ${amountController.text}');
-    debugPrint('dateController, ${dateController.text}');
-    debugPrint('descrController, ${descrController.text}');
-    debugPrint('selectedValue, $selectedValue');
-
-    String? token = await LocalStorageApi.getToken();
-
+  Future<void> createTransaction() async {
     appBloc.transactions.addTransaction(
       amount: amountController.text,
       transaction_date: dateController.text,
       transaction_description: descrController.text,
       transaction_type: selectedValue?.toLowerCase(),
-      token: token,
     );
   }
 
@@ -138,8 +166,6 @@ class TransactionsState extends State<Transactions>
                         DropdownButton<String>(
                           value: selectedValue,
                           onChanged: (String? newValue) {
-                            // debugPrint(newValue);
-                            // debugPrint(selectedValue);
                             setState(() {
                               selectedValue = newValue;
                             });
@@ -155,8 +181,9 @@ class TransactionsState extends State<Transactions>
                           }).toList(),
                         ),
                         SubmitButton(
-                            onSubmit: addTransaction,
-                            buttonText: "Add Transaction")
+                          onSubmit: createTransaction,
+                          buttonText: "Add Transaction",
+                        )
                       ],
                     ),
                   )
@@ -186,7 +213,7 @@ class TransactionsState extends State<Transactions>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text("Welcome, $name"),
-              const Text("Calculations"),
+              const Text("Transactions"),
               const LogoutButton(),
             ],
           ),
@@ -208,19 +235,37 @@ class TransactionsState extends State<Transactions>
         body: TabBarView(
           controller: _tabController,
           children: <Widget>[
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(30),
-                ),
-                onPressed: modalCreateOrder,
-                child: const Icon(Icons.add),
-              ),
+            ListView.builder(
+              itemCount: transactions.length,
+              itemBuilder: (BuildContext context, int index) {
+                if (transactions.isNotEmpty) {
+                  Transaction transaction = transactions[index];
+
+                  return ListTile(
+                    title: Text("Amount: ${transaction.amount}"),
+                    subtitle: Text(
+                        "Date: ${transaction.transaction_date}\nDescription: ${transaction.transaction_description}\nType: ${transaction.transaction_type}"),
+                  );
+                } else {
+                  return const CircularProgressIndicator();
+                }
+              },
             ),
-            const Center(
-              child: Text("It's rainy here"),
+            ListView.builder(
+              itemCount: transactions.length,
+              itemBuilder: (BuildContext context, int index) {
+                if (transactions.isNotEmpty) {
+                  Transaction transaction = transactions[index];
+
+                  return ListTile(
+                    title: Text("Amount: ${transaction.amount}"),
+                    subtitle: Text(
+                        "Date: ${transaction.transaction_date}\nDescription: ${transaction.transaction_description}\nType: ${transaction.transaction_type}"),
+                  );
+                } else {
+                  return const CircularProgressIndicator();
+                }
+              },
             ),
           ],
         ),
@@ -234,3 +279,15 @@ class TransactionsState extends State<Transactions>
     super.dispose();
   }
 }
+
+// Align(
+//               alignment: Alignment.bottomRight,
+//               child: ElevatedButton(
+//                 style: ElevatedButton.styleFrom(
+//                   shape: const CircleBorder(),
+//                   padding: const EdgeInsets.all(30),
+//                 ),
+//                 onPressed: modalCreateOrder,
+//                 child: const Icon(Icons.add),
+//               ),
+//             ),
