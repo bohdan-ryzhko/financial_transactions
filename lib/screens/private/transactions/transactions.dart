@@ -82,13 +82,49 @@ class TransactionsState extends State<Transactions>
     }
   }
 
-  Future<void> createTransaction() async {
-    appBloc.transactions.addTransaction(
+  void createTransaction() {
+    appBloc.transactions
+        .addTransaction(
       amount: amountController.text,
       transaction_date: dateController.text,
       transaction_description: descrController.text,
       transaction_type: selectedValue?.toLowerCase(),
-    );
+    )
+        .then((Transaction newTransaction) {
+      if (newTransaction.transaction_type == TransactionType.revenues) {
+        setState(() {
+          transactionsRevenues = [...transactionsRevenues, newTransaction];
+        });
+        return;
+      } else if (newTransaction.transaction_type == TransactionType.expenses) {
+        setState(() {
+          transactionsExpenses = [...transactionsExpenses, newTransaction];
+        });
+        return;
+      }
+    }).catchError((error) {
+      debugPrint(error.toString());
+    });
+  }
+
+  void Function() onDeleteTransaction(Transaction transaction) {
+    return () {
+      appBloc.transactions
+          .deleteTransaction(transaction: transaction)
+          .then((deletedTransaction) {
+        setState(() {
+          if (deletedTransaction.transaction_type == TransactionType.expenses) {
+            transactionsExpenses
+                .removeWhere((item) => item.id == transaction.id);
+          } else {
+            transactionsRevenues
+                .removeWhere((item) => item.id == transaction.id);
+          }
+        });
+      }).catchError((error) {
+        debugPrint(error.toString());
+      });
+    };
   }
 
   void modalCreateOrder() {
@@ -208,30 +244,42 @@ class TransactionsState extends State<Transactions>
             controller: _tabController,
           ),
         ),
-        body: TabBarView(
-          controller: _tabController,
+        body: Stack(
           children: <Widget>[
-            ListView.builder(
-              itemCount: transactionsRevenues.length,
-              itemBuilder: (BuildContext context, int index) {
-                return transactionsRevenues.isNotEmpty
-                    ? TransactionItem(
-                        transaction: transactionsRevenues[index],
-                        transactionType: "revenues",
-                      )
-                    : const CircularProgressIndicator();
-              },
+            TabBarView(
+              controller: _tabController,
+              children: <Widget>[
+                ListView.builder(
+                  itemCount: transactionsRevenues.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return transactionsRevenues.isNotEmpty
+                        ? TransactionItem(
+                            transaction: transactionsRevenues[index],
+                            onDeleteTransaction: onDeleteTransaction,
+                          )
+                        : const CircularProgressIndicator();
+                  },
+                ),
+                ListView.builder(
+                  itemCount: transactionsExpenses.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return transactionsRevenues.isNotEmpty
+                        ? TransactionItem(
+                            transaction: transactionsExpenses[index],
+                            onDeleteTransaction: onDeleteTransaction,
+                          )
+                        : const CircularProgressIndicator();
+                  },
+                ),
+              ],
             ),
-            ListView.builder(
-              itemCount: transactionsExpenses.length,
-              itemBuilder: (BuildContext context, int index) {
-                return transactionsRevenues.isNotEmpty
-                    ? TransactionItem(
-                        transaction: transactionsExpenses[index],
-                        transactionType: "expenses",
-                      )
-                    : const CircularProgressIndicator();
-              },
+            Positioned(
+              bottom: 30,
+              right: 30,
+              child: FloatingActionButton(
+                onPressed: modalCreateOrder,
+                child: const Icon(Icons.add),
+              ),
             ),
           ],
         ),
@@ -245,15 +293,3 @@ class TransactionsState extends State<Transactions>
     super.dispose();
   }
 }
-
-// Align(
-//               alignment: Alignment.bottomRight,
-//               child: ElevatedButton(
-//                 style: ElevatedButton.styleFrom(
-//                   shape: const CircleBorder(),
-//                   padding: const EdgeInsets.all(30),
-//                 ),
-//                 onPressed: modalCreateOrder,
-//                 child: const Icon(Icons.add),
-//               ),
-//             ),

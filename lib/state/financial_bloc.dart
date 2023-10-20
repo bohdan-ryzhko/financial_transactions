@@ -87,7 +87,7 @@ class TransactionsState {
     }
   }
 
-  Future<void> addTransaction({
+  Future<Transaction> addTransaction({
     required String amount,
     required String transaction_date,
     required String transaction_description,
@@ -108,9 +108,42 @@ class TransactionsState {
       Response<Map<String, dynamic>> response =
           await dio.post(baseUrl, data: data);
 
-      debugPrint(response.toString());
+      if (response.data != null) {
+        final transactionData = response.data as Map<String, dynamic>;
+        final transaction = Transaction(
+          id: transactionData['id'],
+          amount: transactionData['amount'],
+          transaction_date: transactionData['transaction_date'],
+          transaction_description: transactionData['transaction_description'],
+          transaction_type: TransactionType.values.firstWhere((e) =>
+              e.toString().split('.').last ==
+              transactionData['transaction_type']),
+        );
+
+        return transaction;
+      } else {
+        throw Exception('Failed to create a transaction');
+      }
     } catch (error) {
       debugPrint(error.toString());
+      throw Exception('Failed to create a transaction');
+    }
+  }
+
+  Future<Transaction> deleteTransaction({
+    required Transaction transaction,
+  }) async {
+    try {
+      String? token = await LocalStorageApi.getToken();
+
+      dio.options.headers['Authorization'] = 'Bearer $token';
+
+      await dio.delete("$baseUrl/${transaction.id}");
+
+      return transaction;
+    } catch (error) {
+      debugPrint(error.toString());
+      throw Exception('Failed to delete a transaction');
     }
   }
 }
