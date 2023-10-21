@@ -38,15 +38,7 @@ class LoginFormState extends State<LoginForm> {
       password: passwordController.text,
     );
 
-    final data = {
-      "email": emailController.text,
-      "password": passwordController.text
-    };
-
     String? token = await LocalStorageApi.getToken();
-
-    debugPrint("token in login: $token");
-    debugPrint("data in login: ${data.toString()}");
 
     if (token != null) {
       if (!context.mounted) return;

@@ -52,8 +52,6 @@ class UserState {
       this.email = response.data!["email"] ?? "";
       this.name = response.data!["name"] ?? "";
       this.password = response.data!["password"] ?? "";
-
-      login(email: email, password: data["password"]);
     } catch (error) {
       debugPrint(error.toString());
     }
@@ -80,6 +78,8 @@ class UserState {
         throw Exception(response);
       }
 
+      email = response.data!["email"] ?? "";
+      name = response.data!["name"] ?? "";
       token = response.data!["token"] ?? "";
     } catch (error) {
       debugPrint(error.toString());

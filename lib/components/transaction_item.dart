@@ -22,6 +22,12 @@ class TransactionItem extends StatelessWidget {
     }
   }
 
+  String getTransactionType() {
+    return transaction.transaction_type == TransactionType.expenses
+        ? "expenses"
+        : "revenues";
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -30,7 +36,7 @@ class TransactionItem extends StatelessWidget {
           : const Color.fromARGB(255, 197, 233, 215),
       title: Text("Amount: ${transaction.amount}"),
       subtitle: Text(
-          "Date: ${transaction.transaction_date}\nDescription: ${transaction.transaction_description}\nType: ${transaction.transaction_type}"),
+          "Date: ${transaction.transaction_date}\nDescription: ${transaction.transaction_description}\nType: ${getTransactionType()}"),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

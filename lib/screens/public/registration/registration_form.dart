@@ -40,9 +40,12 @@ class RegistrationFormState extends State<RegistrationForm> {
       password: passwordController.text,
     );
 
-    String? token = await LocalStorageApi.getToken();
+    await appBloc.user.login(
+      email: emailController.text,
+      password: passwordController.text,
+    );
 
-    debugPrint("token in register: $token");
+    String? token = await LocalStorageApi.getToken();
 
     if (token != null) {
       if (!context.mounted) return;
@@ -104,7 +107,7 @@ class RegistrationFormState extends State<RegistrationForm> {
                   ? const CircularProgressIndicator()
                   : SubmitButton(
                       onSubmit: onRegistration,
-                      buttonText: "Login",
+                      buttonText: "Registration",
                     ),
             ),
           )

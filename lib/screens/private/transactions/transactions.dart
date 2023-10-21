@@ -249,7 +249,13 @@ class TransactionsState extends State<Transactions>
             TabBarView(
               controller: _tabController,
               children: <Widget>[
-                ListView.builder(
+                ListView.separated(
+                  separatorBuilder: (BuildContext context, int index) {
+                    return const Divider(
+                      height: 2,
+                      color: Color.fromARGB(255, 119, 146, 132),
+                    );
+                  },
                   itemCount: transactionsRevenues.length,
                   itemBuilder: (BuildContext context, int index) {
                     return transactionsRevenues.isNotEmpty
@@ -260,7 +266,13 @@ class TransactionsState extends State<Transactions>
                         : const CircularProgressIndicator();
                   },
                 ),
-                ListView.builder(
+                ListView.separated(
+                  separatorBuilder: (BuildContext context, int index) {
+                    return const Divider(
+                      height: 2,
+                      color: Color.fromARGB(255, 134, 102, 102),
+                    );
+                  },
                   itemCount: transactionsExpenses.length,
                   itemBuilder: (BuildContext context, int index) {
                     return transactionsRevenues.isNotEmpty
@@ -275,7 +287,7 @@ class TransactionsState extends State<Transactions>
             ),
             Positioned(
               bottom: 30,
-              right: 30,
+              right: 70,
               child: FloatingActionButton(
                 onPressed: modalCreateOrder,
                 child: const Icon(Icons.add),
