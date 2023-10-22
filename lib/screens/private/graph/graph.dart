@@ -1,6 +1,7 @@
 import 'package:financial_transactions/components/components.dart';
 import 'package:financial_transactions/state/financial_bloc.dart';
 import 'package:financial_transactions/state/state.dart';
+import 'package:financial_transactions/utils/get_graph.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,27 @@ class _GraphState extends State<Graph> {
   List transactionsExpenses = [];
   num maxAmountRevenues = 0;
   num maxAmountExpenses = 0;
+
+  List<LineChartBarData> graphs = [];
+  List<List<Widget>> dates = [];
+
+  int currentGraph = 0;
+  String title = "Revenues";
+
+  void incrementCurrentGraph() {
+    if (currentGraph == graphs.length - 1) {
+      setState(() {
+        currentGraph = 0;
+        title = "Revenues";
+      });
+      return;
+    } else {
+      setState(() {
+        currentGraph += 1;
+        title = "Expenses";
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -39,6 +61,17 @@ class _GraphState extends State<Graph> {
           final dateB = DateTime.parse(b["date"]);
           return dateA.compareTo(dateB);
         });
+
+        graphs.add(
+          LineChartBarData(
+            spots: getGraph(transactionsRevenues),
+            isCurved: true,
+            belowBarData: BarAreaData(show: false),
+            color: const Color.fromARGB(255, 137, 204, 171),
+          ),
+        );
+
+        dates.add(getDates(transactionsRevenues));
 
         maxAmountRevenues = transactionsRevenues.isNotEmpty
             ? transactionsRevenues
@@ -69,6 +102,17 @@ class _GraphState extends State<Graph> {
           return dateA.compareTo(dateB);
         });
 
+        graphs.add(
+          LineChartBarData(
+            spots: getGraph(transactionsExpenses),
+            isCurved: true,
+            belowBarData: BarAreaData(show: false),
+            color: const Color.fromARGB(255, 222, 159, 159),
+          ),
+        );
+
+        dates.add(getDates(transactionsExpenses));
+
         maxAmountExpenses = transactionsExpenses.isNotEmpty
             ? transactionsExpenses
                 .map((entry) => entry['amount'] as double)
@@ -84,59 +128,58 @@ class _GraphState extends State<Graph> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("transactionsExpenses ${transactionsRevenues.toList()}");
-
     return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text("Welcome, ${appBloc.user.name}"),
-              const Text("Graph"),
-              const LogoutButton(),
-            ],
-          ),
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text("Welcome, ${appBloc.user.name}"),
+            const Text("Graph"),
+            const LogoutButton(),
+          ],
         ),
-        body: transactionsRevenues.isNotEmpty
-            ? Padding(
-                padding: const EdgeInsets.all(35),
-                child: LineChart(
-                  LineChartData(
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: transactionsRevenues
-                            .asMap()
-                            .entries
-                            .map((entry) => FlSpot(
-                                entry.key.toDouble(), entry.value['amount']))
-                            .toList(),
-                        isCurved: true,
-                        belowBarData: BarAreaData(show: false),
-                      ),
-                    ],
-                    minY: 0,
-                    maxY: maxAmountRevenues + 100,
-                    titlesData: FlTitlesData(
-                      topTitles: const AxisTitles(
-                        axisNameWidget: Text(""),
-                      ),
-                      rightTitles: const AxisTitles(
-                        axisNameWidget: Text(""),
-                      ),
-                      bottomTitles: AxisTitles(
-                        axisNameWidget: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: transactionsRevenues.map((data) {
-                            return Text(data["date"]);
-                          }).toList(),
+      ),
+      body: transactionsRevenues.isNotEmpty
+          ? Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    onPressed: incrementCurrentGraph,
+                    child: Text(title),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: LineChart(
+                      LineChartData(
+                        lineBarsData: [
+                          graphs[currentGraph],
+                        ],
+                        minY: 0,
+                        maxY: maxAmountRevenues + 100,
+                        titlesData: FlTitlesData(
+                          topTitles: const AxisTitles(
+                            axisNameWidget: Text(""),
+                          ),
+                          rightTitles: const AxisTitles(
+                            axisNameWidget: Text(""),
+                          ),
+                          bottomTitles: AxisTitles(
+                            axisNameWidget: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: dates[currentGraph],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              )
-            : const Center(
-                child: Text("You are not have transactions :("),
-              ));
+              ],
+            )
+          : const Center(child: Text("You are not have transactions :(")),
+    );
   }
 }

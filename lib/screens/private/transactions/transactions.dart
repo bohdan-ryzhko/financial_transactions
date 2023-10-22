@@ -83,6 +83,7 @@ class TransactionsState extends State<Transactions>
   }
 
   void createTransaction() {
+    debugPrint(dateController.text);
     appBloc.transactions
         .addTransaction(
       amount: amountController.text,
@@ -218,6 +219,11 @@ class TransactionsState extends State<Transactions>
 
   @override
   Widget build(BuildContext context) {
+    for (int i = 0; i < transactionsRevenues.length; i++) {
+      final transaction = transactionsRevenues[i];
+      debugPrint(
+          "Transaction $i - ID: ${transaction.id}, Amount: ${transaction.amount}, Date: ${transaction.transaction_date}");
+    }
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -275,7 +281,7 @@ class TransactionsState extends State<Transactions>
                   },
                   itemCount: transactionsExpenses.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return transactionsRevenues.isNotEmpty
+                    return transactionsExpenses.isNotEmpty
                         ? TransactionItem(
                             transaction: transactionsExpenses[index],
                             onDeleteTransaction: onDeleteTransaction,

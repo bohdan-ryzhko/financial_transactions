@@ -76,7 +76,6 @@ class TransactionsState {
                       transaction['transaction_type']),
                 ))
             .toList();
-        debugPrint("transactions ${transactionsList.length}");
         return transactionsList;
       } else {
         return [];

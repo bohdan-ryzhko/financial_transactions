@@ -72,8 +72,6 @@ class UserState {
 
       await LocalStorageApi.setToken(response.data!["token"]);
 
-      debugPrint("response in login: ${response.data.toString()}");
-
       if (response.statusCode != 200) {
         throw Exception(response);
       }
@@ -95,8 +93,6 @@ class UserState {
       password = "";
       token = "";
 
-      debugPrint(await LocalStorageApi.getToken());
-
       return await LocalStorageApi.getToken();
     } catch (error) {
       debugPrint(error.toString());
@@ -113,14 +109,10 @@ class UserState {
         Response<Map<String, dynamic>> response =
             await dio.post("$baseUrl/refresh", data: data);
 
-        debugPrint(response.toString());
-
         email = response.data!["email"] ?? "";
         name = response.data!["name"] ?? "";
         password = response.data!["password"] ?? "";
       }
-
-      debugPrint("token in refresh: $token");
     } catch (error) {
       debugPrint(error.toString());
     }

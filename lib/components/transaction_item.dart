@@ -1,4 +1,5 @@
 import 'package:financial_transactions/state/financial_bloc.dart';
+import 'package:financial_transactions/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -36,7 +37,7 @@ class TransactionItem extends StatelessWidget {
           : const Color.fromARGB(255, 197, 233, 215),
       title: Text("Amount: ${transaction.amount}"),
       subtitle: Text(
-          "Date: ${transaction.transaction_date}\nDescription: ${transaction.transaction_description}\nType: ${getTransactionType()}"),
+          "Date: ${getLocalizationDate(transaction.transaction_date)}\nDescription: ${transaction.transaction_description}\nType: ${getTransactionType()}"),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
