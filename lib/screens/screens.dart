@@ -36,9 +36,9 @@ class _ScreensNavigationState extends State<ScreensNavigation> {
   }
 
   Future<void> _initializeToken() async {
-    final retrievedToken = await LocalStorageApi.getToken();
+    final refreshToken = await LocalStorageApi.getToken();
     setState(() {
-      token = retrievedToken ?? "";
+      token = refreshToken ?? "";
     });
 
     appBloc.user.refresh(token);

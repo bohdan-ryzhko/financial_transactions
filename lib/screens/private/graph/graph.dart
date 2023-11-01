@@ -26,6 +26,9 @@ class _GraphState extends State<Graph> {
   int currentGraph = 0;
   String title = "Revenues";
 
+  num? sumRevenues = 0;
+  num? sumExpenses = 0;
+
   void incrementCurrentGraph() {
     if (currentGraph == graphs.length - 1) {
       setState(() {
@@ -45,89 +48,112 @@ class _GraphState extends State<Graph> {
   void initState() {
     super.initState();
 
-    appBloc.transactions
-        .getTransactions(typeTransaction: "revenues")
-        .then((transactionsList) {
-      setState(() {
-        transactionsRevenues = transactionsList.map((Transaction transaction) {
-          return {
-            "date": transaction.transaction_date,
-            "amount": transaction.amount!.toDouble(),
-          };
-        }).toList();
+    // final accountId = widget.account.id;
 
-        transactionsRevenues.sort((a, b) {
-          final dateA = DateTime.parse(a["date"]);
-          final dateB = DateTime.parse(b["date"]);
-          return dateA.compareTo(dateB);
-        });
+    // appBloc.transactions
+    //     .getTransactions(typeTransaction: "revenues")
+    //     .then((transactionsList) {
+    //   setState(() {
+    //     transactionsRevenues = transactionsList.map((Transaction transaction) {
+    //       return {
+    //         "date": transaction.transaction_date,
+    //         "amount": transaction.amount!.toDouble(),
+    //       };
+    //     }).toList();
 
-        graphs.add(
-          LineChartBarData(
-            spots: getGraph(transactionsRevenues),
-            isCurved: true,
-            belowBarData: BarAreaData(show: false),
-            color: const Color.fromARGB(255, 137, 204, 171),
-          ),
-        );
+    //     sumRevenues = transactionsList
+    //         .map((transaction) => transaction.amount)
+    //         .reduce((value, element) {
+    //       if (value != null && element != null) {
+    //         return value + element;
+    //       }
+    //       return 0;
+    //     });
 
-        dates.add(getDates(transactionsRevenues));
+    //     transactionsRevenues.sort((a, b) {
+    //       final dateA = DateTime.parse(a["date"]);
+    //       final dateB = DateTime.parse(b["date"]);
+    //       return dateA.compareTo(dateB);
+    //     });
 
-        maxAmountRevenues = transactionsRevenues.isNotEmpty
-            ? transactionsRevenues
-                .map((entry) => entry['amount'] as double)
-                .reduce((max, amount) => max > amount ? max : amount)
-            : 0;
-      });
-    }).catchError((error) {
-      setState(() {
-        transactionsRevenues = [];
-      });
-    });
+    //     graphs.add(
+    //       LineChartBarData(
+    //         spots: getGraph(transactionsRevenues),
+    //         isCurved: true,
+    //         belowBarData: BarAreaData(show: false),
+    //         color: const Color.fromARGB(255, 137, 204, 171),
+    //       ),
+    //     );
 
-    appBloc.transactions
-        .getTransactions(typeTransaction: "expenses")
-        .then((transactionsList) {
-      setState(() {
-        transactionsExpenses = transactionsList.map((Transaction transaction) {
-          return {
-            "date": transaction.transaction_date,
-            "amount": transaction.amount!.toDouble(),
-          };
-        }).toList();
+    //     dates.add(getDates(transactionsRevenues));
 
-        transactionsExpenses.sort((a, b) {
-          final dateA = DateTime.parse(a["date"]);
-          final dateB = DateTime.parse(b["date"]);
-          return dateA.compareTo(dateB);
-        });
+    //     maxAmountRevenues = transactionsRevenues.isNotEmpty
+    //         ? transactionsRevenues
+    //             .map((entry) => entry['amount'] as double)
+    //             .reduce((max, amount) => max > amount ? max : amount)
+    //         : 0;
+    //   });
+    // }).catchError((error) {
+    //   setState(() {
+    //     transactionsRevenues = [];
+    //   });
+    // });
 
-        graphs.add(
-          LineChartBarData(
-            spots: getGraph(transactionsExpenses),
-            isCurved: true,
-            belowBarData: BarAreaData(show: false),
-            color: const Color.fromARGB(255, 222, 159, 159),
-          ),
-        );
+    // appBloc.transactions
+    //     .getTransactions(typeTransaction: "expenses")
+    //     .then((transactionsList) {
+    //   setState(() {
+    //     transactionsExpenses = transactionsList.map((Transaction transaction) {
+    //       return {
+    //         "date": transaction.transaction_date,
+    //         "amount": transaction.amount!.toDouble(),
+    //       };
+    //     }).toList();
 
-        dates.add(getDates(transactionsExpenses));
+    //     sumExpenses = transactionsList
+    //         .map((transaction) => transaction.amount)
+    //         .reduce((value, element) {
+    //       if (value != null && element != null) {
+    //         return value + element;
+    //       }
+    //       return 0;
+    //     });
 
-        maxAmountExpenses = transactionsExpenses.isNotEmpty
-            ? transactionsExpenses
-                .map((entry) => entry['amount'] as double)
-                .reduce((max, amount) => max > amount ? max : amount)
-            : 0;
-      });
-    }).catchError((error) {
-      setState(() {
-        transactionsExpenses = [];
-      });
-    });
+    //     transactionsExpenses.sort((a, b) {
+    //       final dateA = DateTime.parse(a["date"]);
+    //       final dateB = DateTime.parse(b["date"]);
+    //       return dateA.compareTo(dateB);
+    //     });
+
+    //     graphs.add(
+    //       LineChartBarData(
+    //         spots: getGraph(transactionsExpenses),
+    //         isCurved: true,
+    //         belowBarData: BarAreaData(show: false),
+    //         color: const Color.fromARGB(255, 222, 159, 159),
+    //       ),
+    //     );
+
+    //     dates.add(getDates(transactionsExpenses));
+
+    //     maxAmountExpenses = transactionsExpenses.isNotEmpty
+    //         ? transactionsExpenses
+    //             .map((entry) => entry['amount'] as double)
+    //             .reduce((max, amount) => max > amount ? max : amount)
+    //         : 0;
+    //   });
+    // }).catchError((error) {
+    //   setState(() {
+    //     transactionsExpenses = [];
+    //   });
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
+    final revenue = (sumRevenues != null && sumExpenses != null)
+        ? sumRevenues! - sumExpenses!
+        : 0;
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -139,47 +165,54 @@ class _GraphState extends State<Graph> {
           ],
         ),
       ),
-      body: transactionsRevenues.isNotEmpty
-          ? Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ElevatedButton(
-                    onPressed: incrementCurrentGraph,
-                    child: Text(title),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: LineChart(
-                      LineChartData(
-                        lineBarsData: [
-                          graphs[currentGraph],
-                        ],
-                        minY: 0,
-                        maxY: maxAmountRevenues + 100,
-                        titlesData: FlTitlesData(
-                          topTitles: const AxisTitles(
-                            axisNameWidget: Text(""),
-                          ),
-                          rightTitles: const AxisTitles(
-                            axisNameWidget: Text(""),
-                          ),
-                          bottomTitles: AxisTitles(
-                            axisNameWidget: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: dates[currentGraph],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : const Center(child: Text("You are not have transactions :(")),
+      body: const Center(child: Text("You are not have transactions :(")),
+      // body: transactionsRevenues.isNotEmpty
+      //     ? Column(
+      //         children: <Widget>[
+      //           Padding(
+      //             padding: const EdgeInsets.all(16),
+      //             child: Row(
+      //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //               children: [
+      //                 Text("Clear revenue: $revenue"),
+      //                 ElevatedButton(
+      //                   onPressed: incrementCurrentGraph,
+      //                   child: Text(title),
+      //                 ),
+      //               ],
+      //             ),
+      //           ),
+      //           Expanded(
+      //             child: Padding(
+      //               padding: const EdgeInsets.all(16),
+      //               child: LineChart(
+      //                 LineChartData(
+      //                   lineBarsData: [
+      //                     graphs[currentGraph],
+      //                   ],
+      //                   minY: 0,
+      //                   maxY: maxAmountRevenues + 100,
+      //                   titlesData: FlTitlesData(
+      //                     topTitles: const AxisTitles(
+      //                       axisNameWidget: Text(""),
+      //                     ),
+      //                     rightTitles: const AxisTitles(
+      //                       axisNameWidget: Text(""),
+      //                     ),
+      //                     bottomTitles: AxisTitles(
+      //                       axisNameWidget: Row(
+      //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //                         children: dates[currentGraph],
+      //                       ),
+      //                     ),
+      //                   ),
+      //                 ),
+      //               ),
+      //             ),
+      //           ),
+      //         ],
+      //       )
+      //     : const Center(child: Text("You are not have transactions :(")),
     );
   }
 }

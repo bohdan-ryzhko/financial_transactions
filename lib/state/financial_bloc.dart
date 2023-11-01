@@ -13,7 +13,7 @@ class Transaction {
   final num? owner_id;
   final String? transaction_date;
   final String? transaction_description;
-  final TransactionType? transaction_type;
+  TransactionType? transaction_type;
 
   Transaction({
     this.id,
@@ -30,7 +30,6 @@ class Transaction {
       amount: null,
       transaction_date: null,
       transaction_description: null,
-      transaction_type: null,
     );
   }
 }
@@ -53,15 +52,15 @@ class TransactionsState {
     );
   }
 
-  Future<List<Transaction>> getTransactions({
-    required String typeTransaction,
+  Future<List<Transaction>> getRevenues({
+    required String? accountId,
   }) async {
     try {
       String? token = await LocalStorageApi.getToken();
       dio.options.headers['Authorization'] = 'Bearer $token';
 
       Response<List<dynamic>> response =
-          await dio.get("$baseUrl/$typeTransaction");
+          await dio.get("$baseUrl/$accountId/revenues");
 
       if (response.data != null) {
         List<Transaction> transactionsList = (response.data as List<dynamic>)
@@ -71,9 +70,38 @@ class TransactionsState {
                   transaction_date: transaction['transaction_date'],
                   transaction_description:
                       transaction['transaction_description'],
-                  transaction_type: TransactionType.values.firstWhere((e) =>
-                      e.toString().split('.').last ==
-                      transaction['transaction_type']),
+                  transaction_type: TransactionType.revenues,
+                ))
+            .toList();
+        return transactionsList;
+      } else {
+        return [];
+      }
+    } catch (error) {
+      debugPrint(error.toString());
+      return [];
+    }
+  }
+
+  Future<List<Transaction>> getExpenses({
+    required String? accountId,
+  }) async {
+    try {
+      String? token = await LocalStorageApi.getToken();
+      dio.options.headers['Authorization'] = 'Bearer $token';
+
+      Response<List<dynamic>> response =
+          await dio.get("$baseUrl/$accountId/expenses");
+
+      if (response.data != null) {
+        List<Transaction> transactionsList = (response.data as List<dynamic>)
+            .map((dynamic transaction) => Transaction(
+                  id: transaction['id'],
+                  amount: transaction['amount'],
+                  transaction_date: transaction['transaction_date'],
+                  transaction_description:
+                      transaction['transaction_description'],
+                  transaction_type: TransactionType.expenses,
                 ))
             .toList();
         return transactionsList;
@@ -88,6 +116,7 @@ class TransactionsState {
 
   Future<Transaction> addTransaction({
     required String amount,
+    required String? accountId,
     required String transaction_date,
     required String transaction_description,
     required String? transaction_type,
@@ -97,7 +126,6 @@ class TransactionsState {
         "amount": double.parse(amount),
         "transaction_date": transaction_date,
         "transaction_description": transaction_description,
-        "transaction_type": transaction_type,
       };
 
       String? token = await LocalStorageApi.getToken();
@@ -105,7 +133,7 @@ class TransactionsState {
       dio.options.headers['Authorization'] = 'Bearer $token';
 
       Response<Map<String, dynamic>> response =
-          await dio.post(baseUrl, data: data);
+          await dio.post("$baseUrl/$accountId/$transaction_type", data: data);
 
       if (response.data != null) {
         final transactionData = response.data as Map<String, dynamic>;
@@ -114,9 +142,9 @@ class TransactionsState {
           amount: transactionData['amount'],
           transaction_date: transactionData['transaction_date'],
           transaction_description: transactionData['transaction_description'],
-          transaction_type: TransactionType.values.firstWhere((e) =>
-              e.toString().split('.').last ==
-              transactionData['transaction_type']),
+          transaction_type: transaction_type == "expenses"
+              ? TransactionType.expenses
+              : TransactionType.revenues,
         );
 
         return transaction;
@@ -131,13 +159,19 @@ class TransactionsState {
 
   Future<Transaction> deleteTransaction({
     required Transaction transaction,
+    required String? accountId,
   }) async {
     try {
       String? token = await LocalStorageApi.getToken();
-
       dio.options.headers['Authorization'] = 'Bearer $token';
 
-      await dio.delete("$baseUrl/${transaction.id}");
+      String transactionType =
+          transaction.transaction_type == TransactionType.expenses
+              ? "expenses"
+              : "revenues";
+
+      await dio
+          .delete("$baseUrl/$accountId/$transactionType/${transaction.id}");
 
       return transaction;
     } catch (error) {

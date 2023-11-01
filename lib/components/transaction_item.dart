@@ -5,7 +5,7 @@ import 'package:share_plus/share_plus.dart';
 
 class TransactionItem extends StatelessWidget {
   final Transaction transaction;
-  final void Function() Function(Transaction) onDeleteTransaction;
+  final void Function(Transaction) onDeleteTransaction;
 
   const TransactionItem({
     Key? key,
@@ -29,6 +29,41 @@ class TransactionItem extends StatelessWidget {
         : "revenues";
   }
 
+  Future<void> dialogBuilderDeleteTransaction(
+    BuildContext context,
+    Transaction transaction,
+  ) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Are you shure to remove the transaction"),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Yes'),
+              onPressed: () {
+                onDeleteTransaction(transaction);
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -47,7 +82,8 @@ class TransactionItem extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.delete),
-            onPressed: onDeleteTransaction(transaction),
+            onPressed: () =>
+                dialogBuilderDeleteTransaction(context, transaction),
           ),
         ],
       ),

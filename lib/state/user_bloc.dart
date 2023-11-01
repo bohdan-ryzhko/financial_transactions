@@ -72,7 +72,7 @@ class UserState {
 
       await LocalStorageApi.setToken(response.data!["token"]);
 
-      if (response.statusCode != 200) {
+      if (response.statusCode != 201) {
         throw Exception(response);
       }
 
@@ -84,16 +84,19 @@ class UserState {
     }
   }
 
-  Future logout() async {
+  Future<void> logout() async {
     try {
       await LocalStorageApi.resetToken();
+
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      await dio.post("$baseUrl/logout");
 
       email = "";
       name = "";
       password = "";
       token = "";
 
-      return await LocalStorageApi.getToken();
+      debugPrint(await LocalStorageApi.getToken());
     } catch (error) {
       debugPrint(error.toString());
     }
@@ -101,13 +104,11 @@ class UserState {
 
   Future<void> refresh(String token) async {
     try {
-      final Map<String, dynamic> data = {
-        "token": token,
-      };
-
       if (token != "") {
+        dio.options.headers['Authorization'] = 'Bearer $token';
+
         Response<Map<String, dynamic>> response =
-            await dio.post("$baseUrl/refresh", data: data);
+            await dio.post("$baseUrl/refresh");
 
         email = response.data!["email"] ?? "";
         name = response.data!["name"] ?? "";

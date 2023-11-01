@@ -1,3 +1,4 @@
+import 'package:financial_transactions/state/account_bloc.dart';
 import 'package:financial_transactions/state/financial_bloc.dart';
 import 'package:financial_transactions/state/user_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,4 +27,5 @@ class AppBloc {
 
   UserState user = UserState.initial();
   TransactionsState transactions = TransactionsState.initial();
+  AccountState account = AccountState.initial();
 }
