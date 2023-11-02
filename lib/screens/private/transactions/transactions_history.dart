@@ -1,9 +1,12 @@
 import 'package:financial_transactions/components/components.dart';
+import 'package:financial_transactions/screens/private/transactions/dropdown_menu.dart';
 import 'package:financial_transactions/state/account_bloc.dart';
 import 'package:financial_transactions/state/financial_bloc.dart';
 import 'package:financial_transactions/state/state.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+const List<String> transactionsTypeList = <String>['Revenues', 'Expenses'];
 
 class TransactionsHistory extends StatefulWidget {
   final Account account;
@@ -70,7 +73,7 @@ class _TransactionsHistoryState extends State<TransactionsHistory>
   final amountController = TextEditingController();
   final dateController = TextEditingController();
   final descrController = TextEditingController();
-  String? selectedValue;
+  String selectedTransactionType = transactionsTypeList.first;
 
   DateTime selectedDate = DateTime.now();
 
@@ -82,7 +85,7 @@ class _TransactionsHistoryState extends State<TransactionsHistory>
       amount: amountController.text,
       transaction_date: dateController.text,
       transaction_description: descrController.text,
-      transaction_type: selectedValue?.toLowerCase(),
+      transaction_type: selectedTransactionType.toLowerCase(),
     )
         .then((Transaction newTransaction) {
       if (newTransaction.transaction_type == TransactionType.revenues) {
@@ -188,20 +191,11 @@ class _TransactionsHistoryState extends State<TransactionsHistory>
                 ),
                 SizedBox(
                   width: double.infinity,
-                  child: DropdownButton<String>(
-                    items: <String>[
-                      'Revenues',
-                      'Expenses',
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    value: selectedValue,
-                    onChanged: (String? newValue) {
+                  child: TransactionTypeDropdown(
+                    selectedTransactionType: selectedTransactionType,
+                    onChanged: (String? value) {
                       setState(() {
-                        selectedValue = newValue;
+                        selectedTransactionType = value!;
                       });
                     },
                   ),
@@ -225,6 +219,7 @@ class _TransactionsHistoryState extends State<TransactionsHistory>
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(selectedTransactionType);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
