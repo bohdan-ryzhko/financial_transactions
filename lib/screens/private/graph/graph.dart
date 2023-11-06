@@ -187,79 +187,81 @@ class _GraphState extends State<Graph> {
         ? sumRevenues! - sumExpenses!
         : 0;
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text("Welcome, ${appBloc.user.name}"),
-            const Text("Graph"),
-            const LogoutButton(),
-          ],
+        appBar: AppBar(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text("Welcome, ${appBloc.user.name}"),
+              const Text("Graph"),
+              const LogoutButton(),
+            ],
+          ),
         ),
-      ),
-      body: (transactionsRevenues.isNotEmpty && transactionsExpenses.isNotEmpty)
-          ? Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        child: accounts.isNotEmpty
-                            ? DropdownButton<String>(
-                                value: dropdownValue,
-                                elevation: 16,
-                                onChanged: onChangedDropDown,
-                                items: accounts.map<DropdownMenuItem<String>>(
-                                    (Account account) {
-                                  return DropdownMenuItem<String>(
-                                    value: account.account_name,
-                                    child: Text(account.account_name!),
-                                  );
-                                }).toList(),
-                              )
-                            : const Text("Not accounts"),
-                      ),
-                      Text("Clear revenue: $revenue"),
-                      ElevatedButton(
-                        onPressed: incrementCurrentGraph,
-                        child: Text(title),
-                      ),
-                    ],
+        body: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    child: accounts.isNotEmpty
+                        ? DropdownButton<String>(
+                            value: dropdownValue,
+                            elevation: 16,
+                            onChanged: onChangedDropDown,
+                            items: accounts.map<DropdownMenuItem<String>>(
+                                (Account account) {
+                              return DropdownMenuItem<String>(
+                                value: account.account_name,
+                                child: Text(account.account_name!),
+                              );
+                            }).toList(),
+                          )
+                        : const Text("Not accounts"),
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: LineChart(
-                      LineChartData(
-                        lineBarsData: [
-                          graphs[currentGraph],
-                        ],
-                        minY: 0,
-                        maxY: maxAmountRevenues + 100,
-                        titlesData: FlTitlesData(
-                          topTitles: const AxisTitles(
-                            axisNameWidget: Text(""),
-                          ),
-                          rightTitles: const AxisTitles(
-                            axisNameWidget: Text(""),
-                          ),
-                          bottomTitles: AxisTitles(
-                            axisNameWidget: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: dates[currentGraph],
+                  Text("Clear revenue: $revenue"),
+                  ElevatedButton(
+                    onPressed: incrementCurrentGraph,
+                    child: Text(title),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: (transactionsRevenues.isNotEmpty &&
+                        transactionsExpenses.isNotEmpty)
+                    ? LineChart(
+                        LineChartData(
+                          lineBarsData: [
+                            graphs[currentGraph],
+                          ],
+                          minY: 0,
+                          maxY: maxAmountRevenues + 100,
+                          titlesData: FlTitlesData(
+                            topTitles: const AxisTitles(
+                              axisNameWidget: Text(""),
+                            ),
+                            rightTitles: const AxisTitles(
+                              axisNameWidget: Text(""),
+                            ),
+                            bottomTitles: AxisTitles(
+                              axisNameWidget: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: dates[currentGraph],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : const Center(child: Text("You are not have transactions :(")),
-    );
+                      )
+                    : const Center(
+                        child: Text("You are not have transactions :(")),
+              ),
+            ),
+          ],
+        ));
   }
 }
