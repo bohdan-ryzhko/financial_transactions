@@ -28,7 +28,7 @@ class _PrivateScreensState extends State<PrivateScreens> {
         child: [
           const Transactions(),
           const Graph(),
-          const Calculations(),
+          // const Calculations(),
         ].elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -41,10 +41,10 @@ class _PrivateScreensState extends State<PrivateScreens> {
             icon: Icon(Icons.signal_cellular_alt),
             label: 'Graph',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.signal_cellular_alt),
-            label: 'Calculations',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.signal_cellular_alt),
+          //   label: 'Calculations',
+          // ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: theme.primaryColor,

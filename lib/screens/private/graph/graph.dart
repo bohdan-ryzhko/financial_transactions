@@ -3,6 +3,7 @@ import 'package:financial_transactions/state/account_bloc.dart';
 import 'package:financial_transactions/state/financial_bloc.dart';
 import 'package:financial_transactions/state/state.dart';
 import 'package:financial_transactions/utils/get_graph.dart';
+import 'package:financial_transactions/utils/utils.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -57,8 +58,11 @@ class _GraphState extends State<Graph> {
     appBloc.account.getAccounts().then((List<Account> accountsList) {
       setState(() {
         accounts = accountsList;
-        dropdownValue = accountsList.first.account_name!;
-        fetchTransactions(currentAccount: accountsList.first);
+        dropdownValue =
+            accountsList.isNotEmpty ? accountsList.first.account_name! : "";
+        if (accountsList.isNotEmpty) {
+          fetchTransactions(currentAccount: accountsList.first);
+        }
       });
     }).catchError((error) {
       debugPrint(error);
@@ -75,23 +79,15 @@ class _GraphState extends State<Graph> {
         transactionsExpenses = [];
       });
       setState(() {
-        transactionsExpenses = transactions.map((Transaction transaction) {
-          return {
-            "date": transaction.transaction_date,
-            "amount": transaction.amount!.toDouble(),
-          };
-        }).toList();
+        transactionsExpenses = transactions.map(mapTransactions).toList();
 
         if (transactions.isNotEmpty) {
           sumExpenses = transactions
               .map((transaction) => transaction.amount)
-              .reduce((value, element) {
-            if (value != null && element != null) {
-              return value + element;
-            }
-            return 0;
-          });
+              .reduce(calculateAmount);
         }
+
+        transactionsExpenses.sort(sortedTransactions);
 
         graphs.add(
           LineChartBarData(
@@ -119,29 +115,15 @@ class _GraphState extends State<Graph> {
         transactionsRevenues = [];
       });
       setState(() {
-        transactionsRevenues = transactions.map((Transaction transaction) {
-          return {
-            "date": transaction.transaction_date,
-            "amount": transaction.amount!.toDouble(),
-          };
-        }).toList();
+        transactionsRevenues = transactions.map(mapTransactions).toList();
 
         if (transactions.isNotEmpty) {
           sumRevenues = transactions
               .map((transaction) => transaction.amount)
-              .reduce((value, element) {
-            if (value != null && element != null) {
-              return value + element;
-            }
-            return 0;
-          });
+              .reduce(calculateAmount);
         }
 
-        transactionsRevenues.sort((a, b) {
-          final dateA = DateTime.parse(a["date"]);
-          final dateB = DateTime.parse(b["date"]);
-          return dateA.compareTo(dateB);
-        });
+        transactionsRevenues.sort(sortedTransactions);
 
         graphs.add(
           LineChartBarData(
@@ -239,7 +221,9 @@ class _GraphState extends State<Graph> {
                             graphs[currentGraph],
                           ],
                           minY: 0,
-                          maxY: maxAmountRevenues + 100,
+                          maxY: title == "Expenses"
+                              ? maxAmountRevenues + 100
+                              : maxAmountExpenses + 100,
                           titlesData: FlTitlesData(
                             topTitles: const AxisTitles(
                               axisNameWidget: Text(""),
